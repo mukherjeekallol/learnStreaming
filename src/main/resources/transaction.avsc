@@ -1,0 +1,8 @@
+{"namespace": "com.learning.kallol.learnStreaming",
+ "type": "record",
+ "name": "transaction",
+ "fields": [
+     {"name": "id", "type": "string"},
+     {"name": "amount", "type": "double"}
+ ]
+}
