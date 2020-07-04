@@ -21,10 +21,10 @@ object simpleProducer extends App{
     //println("Producer object is created....")
     
     val TOPIC="kafka-topic"
- 
-    for(i<- 1 to 50){
+    var i = 0
+    while (true){
     val record = new ProducerRecord(TOPIC, "key", s"hello $i")
-    
+    i+=1
     //println("sending to topic....")
     
     producer.send(record)
