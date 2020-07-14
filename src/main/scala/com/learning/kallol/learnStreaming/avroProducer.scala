@@ -40,16 +40,17 @@ object avroProducer extends App{
  //creating a new producer with the properties  
     println("Producer object is created....")
     
-    val TOPIC="avro-topic"
+    val TOPIC=args(0)
  //defining the avro schema   
     val user_schema = """
       {
     "namespace": "kakfa-avro.test",
      "type": "record",
-     "name": "user",
+     "name": "user2",
      "fields":[
          {  "name": "id", "type": "string"},
-         {   "name": "name",  "type": "string"}
+         {"name": "amount", "type": "double"},
+         {"name": "volume",  "type": "int"}
      ]
       } 
       
@@ -63,11 +64,15 @@ object avroProducer extends App{
    val genericUser: GenericRecord = new GenericData.Record(schema)
   // assign values to the generic record using loop 
    
+   val random = new scala.util.Random
+   val stn_name = args(1)
    
-    for(i<- 1 to 100) { 
-   genericUser.put("id", s"user$i")
-   genericUser.put("name", s"person_name$i")
+   println(s"sending producer record for station : $stn_name")
    
+   while(true) { 
+   genericUser.put("id", s"$stn_name")
+   genericUser.put("amount", random.nextDouble()*1000)
+   genericUser.put("volume", random.nextInt(100)*10)
    
    println(s"user record created")
    println(genericUser)
@@ -87,10 +92,32 @@ object avroProducer extends App{
    println(serializedBytes)
   // serializedBytes
    
-   producer.send(new ProducerRecord[String, Array[Byte]](TOPIC, "ABC",serializedBytes))
-  
-   println(s"producer record sent...")
+   var partition_col = 0
+   if (stn_name == "nyc") {
+     partition_col = 100
+   } 
+   else if (stn_name == "bom") {
+     partition_col = 200
+   } 
+   else if (stn_name == "nyc") {
+     partition_col = 300
+   } 
+   else if (stn_name == "nyc") {
+     partition_col = 400
+   } 
+   else if (stn_name == "nyc") {
+     partition_col = 500
+   } 
+   else  {
+     partition_col = 1000
+   } 
    
+   
+   producer.send(new ProducerRecord[String, Array[Byte]](TOPIC, stn_name,serializedBytes))
+  
+   println(s"producer record sent...to topic $TOPIC")
+   
+   Thread.sleep(3000L)
   
    }
   

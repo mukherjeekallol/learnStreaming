@@ -3,6 +3,7 @@
  "name": "transaction",
  "fields": [
      {"name": "id", "type": "string"},
-     {"name": "amount", "type": "double"}
+     {"name": "amount", "type": "double"},
+     {"name": "volume", "type": "integer"}
  ]
 }

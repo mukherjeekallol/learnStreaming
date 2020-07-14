@@ -1,0 +1,32 @@
+I need to start 3 kafka-brokers 
+1.cp config/server.properties config/server-1.properties
+cp config/server.properties config/server-2.properties
+2.change the ID, Port and log in the properties file
+bin/kafka-server-start.sh config/server.properties
+bin/kafka-server-start.sh config/server-1.properties
+bin/kafka-server-start.sh config/server-2.properties
+
+This command is to create a topic with 6 partitions and replication factor-3
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 3 --partitions 6 --topic avro-topic5
+
+Describe the topic now to validate this...
+bin/kafka-topics.sh --describe --bootstrap-server localhost:9092 --topic avro-topic5
+
+
+
+These commands will generate records to my producer from different stations and I will send them to different partitions
+
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.avroProducer avro-topic5 pit
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.avroProducer avro-topic5 nyc
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.avroProducer avro-topic5 chi
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.avroProducer avro-topic5 bom
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.avroProducer avro-topic5 ccu
+
+I ran few consumers to see how they started consuming rercords from different stations/Partitions
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.avroConsumer avro-topic5 
+
+This command is to submit my spark job, this spark job will join with static data and aggregate those records and write in console.
+
+bin/spark-submit --class com.learning.kallol.learnStreaming.sparkConsumer --master local[*] --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0 /home/mukherjee_kallol/learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar avro-topic5
+
+

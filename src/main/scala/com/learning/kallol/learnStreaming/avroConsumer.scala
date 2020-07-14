@@ -29,7 +29,7 @@ import scala.collection.JavaConversions._
 
 object avroConsumer extends App{
   
-  val TOPIC="avro-topic"
+  val TOPIC=args(0)
 
   val  props = new Properties()
   props.put("bootstrap.servers", "localhost:9092")
@@ -42,21 +42,22 @@ object avroConsumer extends App{
 
   consumer.subscribe(util.Collections.singletonList(TOPIC))
   
-  println("subscribed to consumer...kallol")
+  println(s"subscribed to topic... $TOPIC")
   
   val user_schema = """
       {
     "namespace": "kakfa-avro.test",
      "type": "record",
-     "name": "user",
+     "name": "user2",
      "fields":[
          {  "name": "id", "type": "string"},
-         {   "name": "name",  "type": "string"}
+         {"name": "amount", "type": "double"},
+         {"name": "volume",  "type": "int"}
      ]
-}
-      
+      } 
       
       """
+    
     
    val schema: Schema = new Parser().parse(user_schema)
 
@@ -91,8 +92,8 @@ object avroConsumer extends App{
      
      println("within the function........")
      println(userData.get("id").toString)
-     println(userData.get("name").toString)
-     
+     println(userData.get("amount").toString)
+     println(userData.get("volume").toString)
    
   }
   
