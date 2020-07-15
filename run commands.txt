@@ -30,3 +30,16 @@ This command is to submit my spark job, this spark job will join with static dat
 bin/spark-submit --class com.learning.kallol.learnStreaming.sparkConsumer --master local[*] --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0 /home/mukherjee_kallol/learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar avro-topic5
 
 
+--confluent commands
+
+java.config is the file where I stored how to connect to confluent_cloud
+
+-- run multiple Producers
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.confAvroProducer java.config stn-topic nyc
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.confAvroProducer java.config stn-topic pit
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.confAvroProducer java.config stn-topic ccu
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.confAvroProducer java.config stn-topic abc
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.confAvroProducer java.config stn-topic xyz
+
+--run consumers
+java -cp learnStreaming-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.learning.kallol.learnStreaming.confAvroConsumer java.config stn-topic

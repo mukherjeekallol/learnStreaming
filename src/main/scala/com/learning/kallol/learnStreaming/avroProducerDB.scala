@@ -22,11 +22,22 @@ import org.apache.kafka.common.serialization.ByteArraySerializer
 
 import org.apache.kafka.common.errors.SerializationException
 
-object avroProducer extends App{
-  
+import java.io.IOException
+import java.sql.DriverManager
+import java.io.InputStream
+import java.sql.Connection
+import java.sql.ResultSet
+import java.sql.SQLException
+import java.sql.Statement
+import java.util.Properties
+
+
+
+object avroProducerDB {
+  def main(args: Array[String]) {
+    
     println("Inside main......")
-// setting properties for the Producer Object
-// will use Avro serializer for the values..    
+
     val  props = new Properties()
     props.put("bootstrap.servers", "localhost:9092")
     props.put("client.id","avro-producer")
@@ -37,44 +48,73 @@ object avroProducer extends App{
     println("properties are set....")
 
     val producer = new KafkaProducer[String, Array[Byte]](props)
- //creating a new producer with the properties  
+   
     println("Producer object is created....")
     
-    val TOPIC=args(0)
- //defining the avro schema   
+    val TOPIC="avro-topic"
+    
     val user_schema = """
       {
     "namespace": "kakfa-avro.test",
      "type": "record",
-     "name": "user2",
+     "name": "user",
      "fields":[
          {  "name": "id", "type": "string"},
-         {"name": "amount", "type": "double"},
-         {"name": "volume",  "type": "int"}
+         {   "name": "name",  "type": "string"}
      ]
       } 
       
       """
     
    val schema: Schema = new Parser().parse(user_schema)
-//parse the schema
+   
+   val schema_f = scala.io.Source.fromFile("avro_format.txt").mkString
+   
+   val schema_1: Schema = new Parser().parse(schema_f)
+
    println(s"user schema defined")
+   
+   println("Startig DB Connection module.....")
  
-  // create a generic user record
-   val genericUser: GenericRecord = new GenericData.Record(schema)
-  // assign values to the generic record using loop 
+  val driver = "com.mysql.jdbc.Driver"
+  val url = "jdbc:mysql://localhost/mysql"
+  val username = "kalloldev"
+  val password = "test123test"
+  
+  var connection:Connection = null
+  var connection1:Connection = null
+  
+  Class.forName(driver)
+      connection = DriverManager.getConnection(url, username, password)
+      connection1 = DriverManager.getConnection(url, username, password)
+
+      // create the statement, and run the select query
+      val statement = connection.createStatement()
+      val statement1 = connection1.createStatement()
+      
+      println("connection successful .. ")
+      
+      var max_p_key = 0
+      
+      while (true) {
+      
+      var  query = "select p_key, user_id, user_name from scalatest.streaming_users where p_key >"  + max_p_key + " order by p_key"
+      
+      println(s"query... = ${query}") 
+      val resultSet = statement.executeQuery(query)
+      
+      
+      
+      println("Query successful .. going to serialization module....")
    
-   val random = new scala.util.Random
-   val stn_name = args(1)
+   while (resultSet.next()) {
+   var genericUser: GenericRecord = new GenericData.Record(schema)
+   genericUser.put("id", resultSet.getString("user_id"))
+   genericUser.put("name", resultSet.getString("user_name"))
    
-   println(s"sending producer record for station : $stn_name")
+   max_p_key = resultSet.getInt("p_key")
    
-   while(true) { 
-   genericUser.put("id", s"$stn_name")
-   genericUser.put("amount", random.nextDouble()*1000)
-   genericUser.put("volume", random.nextInt(100)*10)
-   
-   println(s"user record created")
+   println(s"record created for user:${resultSet.getString("user_id")}")
    println(genericUser)
    
    val writer = new SpecificDatumWriter[GenericRecord](schema)
@@ -92,13 +132,15 @@ object avroProducer extends App{
    println(serializedBytes)
   // serializedBytes
    
-    
-   producer.send(new ProducerRecord[String, Array[Byte]](TOPIC, stn_name,serializedBytes))
+   producer.send(new ProducerRecord[String, Array[Byte]](TOPIC, "ABC",serializedBytes))
   
-   println(s"producer record sent...to topic $TOPIC")
+   println(s"producer record sent for :${resultSet.getString("user_id")}")
    
-   Thread.sleep(3000L)
   
-   }
+
+  }
+   println("producer record sent for now....waiting for new record.. ")
   
+      }
+  }
 }
