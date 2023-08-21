@@ -114,7 +114,7 @@
 		<dependency>
     		<groupId>org.apache.spark</groupId>
     		<artifactId>spark-core_2.12</artifactId>
-    		<version>3.0.0</version>
+    		<version>3.3.2.3.3.7180.12-5</version>
 		</dependency>
         
         
